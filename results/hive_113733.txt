@@ -1,0 +1,2 @@
+total_ratings	movies_rated	users	first_rating	latest_rating
+49500	7455	610	2026-10-28 11:27:52	2026-10-28 11:37:23

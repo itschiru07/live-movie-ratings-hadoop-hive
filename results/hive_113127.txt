@@ -1,0 +1,73 @@
+total_ratings	movies_rated	users	first_rating	latest_rating
+22500	5363	610	2026-10-28 11:27:52	2026-10-28 11:31:24
+m.title	num_ratings	total_rating	avg_rating
+Goodfellas (1990)	31	140.0	4.52
+Lawrence of Arabia (1962)	14	63.0	4.5
+Shawshank Redemption, The (1994)	81	361.0	4.46
+To Kill a Mockingbird (1962)	13	58.0	4.46
+Rear Window (1954)	20	88.5	4.43
+Star Wars: Episode V - The Empire Strikes Back (1980)	41	181.0	4.41
+Apocalypse Now (1979)	27	117.5	4.35
+Pianist, The (2002)	13	56.5	4.35
+City of God (Cidade de Deus) (2002)	21	91.0	4.33
+Star Wars: Episode IV - A New Hope (1977)	58	250.5	4.32
+m.title	s.num_ratings	s.avg_rating
+Goodfellas (1990)	31	4.52
+Lawrence of Arabia (1962)	14	4.5
+Shawshank Redemption, The (1994)	81	4.46
+To Kill a Mockingbird (1962)	13	4.46
+Rear Window (1954)	20	4.42
+Star Wars: Episode V - The Empire Strikes Back (1980)	41	4.41
+Apocalypse Now (1979)	27	4.35
+Pianist, The (2002)	13	4.35
+City of God (Cidade de Deus) (2002)	21	4.33
+Star Wars: Episode IV - A New Hope (1977)	58	4.32
+m.title	num_ratings	avg_rating
+Shawshank Redemption, The (1994)	81	4.46
+Forrest Gump (1994)	75	4.22
+Pulp Fiction (1994)	74	4.27
+Silence of the Lambs, The (1991)	63	4.15
+Matrix, The (1999)	62	4.1
+Terminator 2: Judgment Day (1991)	61	3.95
+Toy Story (1995)	58	3.85
+Star Wars: Episode IV - A New Hope (1977)	58	4.32
+Jurassic Park (1993)	57	3.68
+Usual Suspects, The (1995)	51	4.27
+genre	num_ratings	avg_rating
+Drama	9386	3.65
+Comedy	8670	3.38
+Action	6776	3.46
+Thriller	5838	3.5
+Adventure	5355	3.53
+Romance	4016	3.53
+Sci-Fi	3802	3.48
+Crime	3721	3.66
+Fantasy	2616	3.5
+Children	2061	3.41
+Mystery	1722	3.64
+Horror	1605	3.25
+Animation	1524	3.67
+War	1092	3.79
+Musical	934	3.59
+IMAX	929	3.64
+Western	454	3.62
+Documentary	260	3.75
+Film-Noir	205	3.92
+(no genres listed)	10	3.55
+rating	how_many
+0.5	300
+1.0	623
+1.5	380
+2.0	1623
+2.5	1254
+3.0	4496
+3.5	2888
+4.0	6115
+4.5	1862
+5.0	2959
+minute	new_ratings	avg_rating
+2026-10-28 11:27	1000	3.45
+2026-10-28 11:28	5000	3.53
+2026-10-28 11:29	2500	3.53
+2026-10-28 11:30	9500	3.5
+2026-10-28 11:31	4500	3.5

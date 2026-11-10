@@ -1,0 +1,43 @@
+# ========================================================
+# Git Ignore for Big Data Movie Ratings Pipeline
+# ========================================================
+
+# Datasets and Archives
+ml-latest-small/
+*.zip
+*.tar.gz
+*.tgz
+*.gz
+
+# Heavy binaries and tools
+tools/
+
+# Pipeline generated state & exports
+exports/
+last_export.txt
+derby.log
+metastore_db/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.save
+*.swp
+*.swo
+*~
+.venv/
+venv/
+ENV/
+env/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor folders
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
