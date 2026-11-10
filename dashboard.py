@@ -9,6 +9,7 @@ Run with:
 """
 import glob
 import os
+import socket
 import time
 from datetime import timedelta
 
@@ -19,6 +20,16 @@ from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 IST = timedelta(hours=5, minutes=30)
+
+
+@st.cache_data(ttl=15)
+def check_port_open(host: str, port: int, timeout: float = 0.2) -> bool:
+    """Checks if a TCP port is active (used for cluster health badges)."""
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
 
 st.set_page_config(
     page_title="Movie Ratings Analytics — Big Data Pipeline",
@@ -168,6 +179,55 @@ with st.sidebar.expander("🔄 Real-Time Controls", expanded=True):
 with st.sidebar.expander("🎯 Filter Parameters", expanded=True):
     min_reviews = st.slider("Minimum Review Filter", min_value=5, max_value=100, value=20)
     top_n = st.slider("Show Top N Movies", min_value=5, max_value=25, value=10)
+
+with st.sidebar.expander("🌐 Cluster Web Interfaces", expanded=True):
+    hdfs_live = check_port_open("127.0.0.1", 9870)
+    yarn_live = check_port_open("127.0.0.1", 8088)
+    history_live = check_port_open("127.0.0.1", 19888)
+
+    hdfs_status = "🟢 Online (:9870)" if hdfs_live else "🔴 Offline"
+    yarn_status = "🟢 Online (:8088)" if yarn_live else "🔴 Offline"
+
+    st.markdown(f"**🐘 HDFS NameNode** `{hdfs_status}`")
+    st.link_button(
+        "🐘 HDFS NameNode UI",
+        "http://localhost:9870",
+        use_container_width=True,
+        help="Explore HDFS distributed filesystem, view data health and blocks",
+    )
+    st.link_button(
+        "📂 Browse HDFS /bda/movies",
+        "http://localhost:9870/explorer.html#/bda/movies",
+        use_container_width=True,
+        help="Directly browse dataset and MapReduce output files in HDFS",
+    )
+
+    st.markdown("---")
+    st.markdown(f"**🧵 YARN Resource Manager** `{yarn_status}`")
+    st.link_button(
+        "🧵 YARN Cluster UI",
+        "http://localhost:8088",
+        use_container_width=True,
+        help="Inspect active/completed MapReduce applications, memory & cores",
+    )
+    st.link_button(
+        "📊 MapReduce Jobs Monitor",
+        "http://localhost:8088/cluster/apps",
+        use_container_width=True,
+        help="Direct view of submitted MapReduce jobs on YARN",
+    )
+
+    if history_live:
+        st.markdown("---")
+        st.markdown("**📜 JobHistory Server** `🟢 Online (:19888)`")
+        st.link_button(
+            "📜 MapReduce Job History",
+            "http://localhost:19888",
+            use_container_width=True,
+            help="Detailed execution history and task counters",
+        )
+
+    st.caption("💡 Services open in a new tab. Start cluster via `bash start_all.sh`.")
 
 with st.sidebar.expander("👤 Academic Project Info", expanded=False):
     st.markdown("**Student:** CHIRANJEEVI A (`@itschiru07`)")
@@ -446,6 +506,26 @@ with tab_arch:
         """,
         language="text",
     )
+
+    st.markdown("### 🌐 Cluster Web Interfaces & Monitoring")
+    col_w1, col_w2, col_w3 = st.columns(3)
+    with col_w1:
+        st.markdown("#### 🐘 HDFS NameNode")
+        st.caption("Distributed filesystem health, block replication & storage.")
+        st.link_button("Open NameNode UI (:9870)", "http://localhost:9870", use_container_width=True)
+        st.link_button("📂 Browse `/bda/movies`", "http://localhost:9870/explorer.html#/bda/movies", use_container_width=True)
+
+    with col_w2:
+        st.markdown("#### 🧵 YARN Resource Manager")
+        st.caption("Active MapReduce jobs, container allocations & queues.")
+        st.link_button("Open YARN UI (:8088)", "http://localhost:8088", use_container_width=True)
+        st.link_button("📊 MapReduce Jobs Monitor", "http://localhost:8088/cluster/apps", use_container_width=True)
+
+    with col_w3:
+        st.markdown("#### 🍃 Database & Storage")
+        st.caption("MongoDB 8.0 collection storage & real-time landing buffer.")
+        st.code("Host: localhost:27017\nDatabase: movieapp\nCollections: ratings, movie_stats", language="yaml")
+
     st.markdown("### 🏃 Terminal Execution Reference")
     st.code(
         """
