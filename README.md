@@ -248,8 +248,8 @@ During live pipeline runs across **46,100+ ratings**:
 
 ---
 
-## 👥 Authors & Acknowledgments
+## 👤 Author & Acknowledgments
 
-- **Chirag (@itschiru07)** & **Nithelan Jayakumar** — Computer Science & Engineering, Gopalan College of Engineering & Management, Bengaluru.
+- **Author:** **CHIRANJEEVI A** ([@itschiru07](https://github.com/itschiru07)) — Computer Science & Engineering, Gopalan College of Engineering & Management, Bengaluru.
 - Built for Big Data Analytics (BCS714D).
 - Dataset credit: GroupLens Research Project at the University of Minnesota.
