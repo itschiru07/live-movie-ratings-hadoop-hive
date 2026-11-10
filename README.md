@@ -1,13 +1,13 @@
 # 🎬 Real-Time Movie Rating Analytics Pipeline
 ### Scalable Big Data Streaming & Distributed Analytics with Hadoop MapReduce, Apache Hive, MongoDB & Streamlit
 
+[![CI Pipeline](https://github.com/itschiru07/live-movie-ratings-hadoop-hive/actions/workflows/ci.yml/badge.svg)](https://github.com/itschiru07/live-movie-ratings-hadoop-hive/actions)
 [![Hadoop](https://img.shields.io/badge/Apache%20Hadoop-3.3.6-F09A37?logo=apachehadoop&logoColor=white)](https://hadoop.apache.org/)
 [![Hive](https://img.shields.io/badge/Apache%20Hive-3.1.3-FDEE21?logo=apachehive&logoColor=black)](https://hive.apache.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-8.0-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![Python](https://img.shields.io/badge/Python-3.10-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.37+-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![Platform](https://img.shields.io/badge/Platform-WSL2%20%7C%20Ubuntu%2022.04-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
@@ -20,7 +20,8 @@ Traditional MapReduce academic demonstrations rely on static CSV files processed
 3. **Distributed MapReduce on YARN:** A custom Python MapReduce streaming job computes rating aggregates (`count`, `total`, `average`) per movie across distributed worker nodes.
 4. **Analytical SQL Engine (Apache Hive):** External Hive tables mapped over HDFS folders run 7 multi-dimensional analytical queries (Top-N movies, genre popularity, arrival trends, rating distribution).
 5. **Cross-Validation:** Hive analytical calculations automatically cross-verify MapReduce outputs (Q2 vs. Q3) to ensure 100% calculation consistency.
-6. **Live Interactive Dashboard:** A **Streamlit** dashboard displays real-time ingestion throughput, live MongoDB metrics, and analytics charts.
+6. **Live Interactive Dashboard:** A multi-tab **Streamlit** dashboard displays real-time ingestion throughput, live MongoDB metrics, and analytics charts.
+7. **CI/CD & Automated Testing:** Continuous integration via GitHub Actions verifies Python syntax and runs unit tests for MapReduce jobs.
 
 ---
 
@@ -80,7 +81,8 @@ Traditional MapReduce academic demonstrations rely on static CSV files processed
 - **Tab-Separated Serialization:** Solves the common CSV parsing pitfall where movie titles contain commas (e.g., *"Shawshank Redemption, The (1994)"*).
 - **External Tables in Apache Hive:** Uses `CREATE EXTERNAL TABLE` referencing HDFS directories. New files written by subsequent ingestion cycles are queryable immediately with zero manual schema reloading.
 - **Minimum Support Thresholds:** Eliminates outlier distortion in ranking queries using SQL `HAVING COUNT(*) >= 10` so movies with a single 5.0 rating do not monopolize Top-10 leaderboards.
-- **Automated Service Management:** Complete shell scripts (`start_all.sh`, `clear_data.sh`, `setup_wsl.sh`) handle environment configuration, daemons, and clean-slate resets.
+- **Defensive Error Handling:** MongoDB ping verification with timeouts, graceful command fallbacks, and dynamic Hadoop streaming jar resolution across versions.
+- **Automated Service Management:** Complete shell scripts (`start_all.sh`, `clear_data.sh`, `setup_wsl.sh`, `download_dataset.sh`) and a `Makefile` streamline execution.
 
 ---
 
@@ -96,12 +98,16 @@ Traditional MapReduce academic demonstrations rely on static CSV files processed
 | **Programming Language** | Python | 3.10 | Producer streaming, ingestion loader, MapReduce jobs, stats sync |
 | **Dashboard / Visualization** | Streamlit | 1.37+ | Real-time browser metrics, live charts, and KPI visualization |
 | **Runtime Environment** | WSL2 / Ubuntu | 22.04 LTS | Virtualized Linux subsystem running all services on Windows |
+| **CI / CD** | GitHub Actions | Ubuntu Latest | Automated linting, syntax checking, and unit testing |
 
 ---
 
 ## 📂 Repository Structure
 
 ```plaintext
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # GitHub Actions Continuous Integration workflow
 ├── docs/
 │   ├── architecture.png        # Pipeline architectural diagram
 │   ├── HOW_IT_WAS_BUILT.md     # Engineering design decisions, problems & solutions
@@ -110,9 +116,13 @@ Traditional MapReduce academic demonstrations rely on static CSV files processed
 ├── results/
 │   ├── hive_113127.txt         # Benchmark sample Hive query results
 │   └── mapreduce_113127.tsv    # Benchmark sample MapReduce outputs
+├── tests/
+│   └── test_mapreduce.py       # Automated unit tests for mapper & reducer
 ├── clear_data.sh               # Utility script to flush MongoDB & HDFS for a clean run
-├── dashboard.py                # Streamlit live monitoring web dashboard
+├── dashboard.py                # Multi-tab Streamlit live monitoring web dashboard
+├── download_dataset.sh         # One-click MovieLens 100k download & extract script
 ├── fix_env.sh                  # One-click recovery script for Hadoop/Hive/Java paths
+├── Makefile                    # Standardized CLI commands (make test, make start, etc.)
 ├── mapper.py                   # MapReduce Mapper: emits (movieId, rating)
 ├── mongo_to_hdfs.py            # Incremental checkpoint ingestion: MongoDB -> HDFS
 ├── movie_analysis.hql          # 7 analytical Hive queries (Top-N, Genres, Trends)
@@ -122,7 +132,7 @@ Traditional MapReduce academic demonstrations rely on static CSV files processed
 ├── run_pipeline.sh             # Master orchestrator: Ingest -> MapReduce -> Sync -> Hive
 ├── setup_wsl.sh                # Automated WSL2 system provisioning script
 ├── start_all.sh                # Helper script to start MongoDB, HDFS, and YARN
-└── README.md                   # Project documentation
+└── stats_to_mongo.py           # Syncs MapReduce TSV outputs back to MongoDB
 ```
 
 ---
@@ -158,17 +168,21 @@ bash setup_wsl.sh
 *(Or follow the detailed step-by-step instructions in [docs/INSTALLATION.md](docs/INSTALLATION.md)).*
 
 ### 3. Download the Dataset
-Download the [MovieLens ml-latest-small](https://grouplens.org/datasets/movielens/latest/) dataset into the project folder:
+Download the [MovieLens ml-latest-small](https://grouplens.org/datasets/movielens/latest/) dataset with one command:
 ```bash
-wget https://files.grouplens.org/datasets/movielens/ml-latest-small.zip
-unzip ml-latest-small.zip
+bash download_dataset.sh
 ```
 
 ### 4. Start Daemons
 ```bash
-./start_all.sh
+bash start_all.sh
 ```
 Verify that `jps` outputs: `NameNode`, `DataNode`, `SecondaryNameNode`, `ResourceManager`, and `NodeManager`.
+
+### 5. Run Unit Tests
+```bash
+python3 -m unittest discover -s tests -v
+```
 
 ---
 
@@ -191,13 +205,13 @@ python3 producer.py ml-latest-small 500 3
 #### Tab 3: Trigger the Pipeline
 Wait ~1 minute after starting the producer, then execute:
 ```bash
-./run_pipeline.sh
+bash run_pipeline.sh
 ```
-Run `./run_pipeline.sh` periodically to watch HDFS ingest new batches, MapReduce recompute aggregates on YARN, and Hive update rankings in real time!
+Run `bash run_pipeline.sh` periodically to watch HDFS ingest new batches, MapReduce recompute aggregates on YARN, and Hive update rankings in real time!
 
 #### To Reset Data (Clean Slate):
 ```bash
-./clear_data.sh
+bash clear_data.sh
 ```
 
 ---
@@ -239,8 +253,3 @@ During live pipeline runs across **46,100+ ratings**:
 - **Chirag (@itschiru07)** & **Nithelan Jayakumar** — Computer Science & Engineering, Gopalan College of Engineering & Management, Bengaluru.
 - Built for Big Data Analytics (BCS714D).
 - Dataset credit: GroupLens Research Project at the University of Minnesota.
-
----
-
-## 📜 License
-This project is open-source under the [MIT License](LICENSE).
